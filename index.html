@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Titut Xentuts  -  v1 version</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Courier New', monospace; }
+  body { background: #000; overflow: hidden; height: 100vh; touch-action: none; }
+  .screen { position: fixed; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; padding: 20px; color: #fff; overflow-y: auto; }
+  .screen.active { display: flex; }
+  
+  #menuScreen { background: radial-gradient(circle at 50% 50%, #1a0a0a, #000); }
+  .menuTitle {
+    font-size: 2.5rem; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #ff3333, #aa0000);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 30px rgba(255,0,0,0.6); margin-bottom: 8px;
+    animation: flicker 3s infinite; text-align: center;
+  }
+  @keyframes flicker { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.3} 94%{opacity:1} 97%{opacity:0.5} }
+  .menuSub { color: #aaa; font-size: 0.85rem; margin-bottom: 24px; letter-spacing: 2px; text-align: center; }
+  .menuBtn {
+    background: linear-gradient(135deg, #6a0000, #aa0000);
+    border: 2px solid #ff4444; color: #fff;
+    padding: 14px 40px; border-radius: 8px;
+    font-size: 1rem; font-weight: bold; cursor: pointer;
+    font-family: inherit; margin: 6px; width: 260px;
+    letter-spacing: 2px; box-shadow: 0 0 20px rgba(255,0,0,0.4);
+    transition: 0.2s;
+  }
+  .menuBtn:hover { background: #aa0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); }
+  .menuBtn:active { transform: scale(0.95); }
+  
+  /* ===== FILM BOX ===== */
+  .filmBox {
+    margin-top: 16px;
+    width: 260px;
+    border: 3px solid #aa0000;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.85);
+    box-shadow: 0 0 25px rgba(255,50,50,0.6);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    animation: filmPulse 2s ease-in-out infinite;
+    transition: transform 0.2s;
+  }
+  .filmBox:hover { transform: scale(1.05); }
+  .filmBox:active { transform: scale(0.98); }
+  @keyframes filmPulse {
+    0%,100% { box-shadow: 0 0 20px rgba(255,50,50,0.5); }
+    50% { box-shadow: 0 0 40px rgba(255,50,50,0.9); }
+  }
+  .filmLabel {
+    background: linear-gradient(90deg, #8a0000, #cc0000, #8a0000);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    padding: 6px 10px;
+    text-align: center;
+    text-shadow: 0 0 8px rgba(255,200,200,0.8);
+  }
+  .filmImg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: cover;
+    filter: brightness(1.05) contrast(1.1);
+  }
+  .filmTapHint {
+    background: rgba(0,0,0,0.8);
+    color: #ffcc44;
+    font-size: 0.6rem;
+    text-align: center;
+    padding: 4px;
+    letter-spacing: 1px;
+    border-top: 1px solid #aa0000;
+  }
+  
+  /* ===== FILM FULL PAGE ===== */
+  #filmScreen {
+    background: radial-gradient(circle at 50% 40%, #2a0a0a, #000);
+    padding: 20px;
+    justify-content: flex-start;
+    padding-top: 50px;
+  }
+  .filmPageTitle {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #ff4444;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(255,0,0,0.6);
+    text-align: center;
+  }
+  .filmFullWrap {
+    width: 100%;
+    max-width: 500px;
+    border: 4px solid #aa0000;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(255,50,50,0.7);
+    background: #000;
+    margin-bottom: 20px;
+  }
+  .filmFullImg {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: brightness(1.05) contrast(1.15);
+  }
+  
+  /* ===== CREDIT ===== */
+  .creditLine {
+    margin-top: 28px;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-align: center;
+    font-weight: bold;
+    animation: rainbowText 6s linear infinite;
+  }
+  @keyframes rainbowText {
+    0%   { color: #ff3333; text-shadow: 0 0 10px currentColor; }
+    16%  { color: #ffaa00; text-shadow: 0 0 10px currentColor; }
+    33%  { color: #ffdd33; text-shadow: 0 0 10px currentColor; }
+    50%  { color: #44dd66; text-shadow: 0 0 10px currentColor; }
+    66%  { color: #00ccff; text-shadow: 0 0 10px currentColor; }
+    83%  { color: #aa66ff; text-shadow: 0 0 10px currentColor; }
+    100% { color: #ff3333; text-shadow: 0 0 10px currentColor; }
+  }
+  .creditSub {
+    font-size: 0.65rem;
+    color: #666;
+    letter-spacing: 2px;
+    margin-top: 4px;
+    text-align: center;
+  }
+  
+  /* ===== DIFFICULTY ===== */
+  #diffScreen { background: radial-gradient(circle at 50% 30%, #1a0a1a, #000); }
+  .diffTitle {
+    font-size: 1.8rem; font-weight: 900; letter-spacing: 3px;
+    color: #ff4444; margin-bottom: 6px; text-shadow: 0 0 20px rgba(255,0,0,0.5);
+    text-align: center;
+  }
+  .diffSub { color: #888; font-size: 0.8rem; margin-bottom: 20px; letter-spacing: 1px; text-align: center; }
+  .diffBtn {
+    border: 2px solid; padding: 12px 18px; border-radius: 12px;
+    font-size: 1rem; font-weight: bold; cursor: pointer;
+    font-family: inherit; margin: 5px; width: 300px;
+    letter-spacing: 2px; transition: 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: rgba(0,0,0,0.6);
+  }
+  .diffBtn:hover { transform: scale(1.03); box-shadow: 0 0 25px currentColor; }
+  .diffBtn:active { transform: scale(0.96); }
+  .diffName { font-size: 1rem; font-weight: 900; }
+  .diffInfo { font-size: 0.65rem; opacity: 0.75; letter-spacing: 1px; text-align: center; }
+  
+  #diffEasy       { color: #44dd66; border-color: #44dd66; }
+  #diffNormal     { color: #ffcc33; border-color: #ffcc33; }
+  #diffHard       { color: #ff7733; border-color: #ff7733; }
+  #diffImpossible { color: #ff2266; border-color: #ff2266; }
+  #diffInsane     { color: #b300ff; border-color: #b300ff; }
+  
+  .backBtn {
+    background: rgba(60,60,60,0.7); border: 2px solid #888;
+    color: #fff; padding: 10px 24px; border-radius: 8px;
+    font-size: 0.9rem; font-weight: bold; cursor: pointer;
+    font-family: inherit; margin-top: 16px; letter-spacing: 1px;
+  }
+  .backBtn:active { transform: scale(0.95); }
+  
+  /* ===== GAME ===== */
+  #gameScreen { padding: 0; }
+  #gameCanvas { display: block; width: 100%; height: 100%; }
+  
+  .hud {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 10px 12px; display: flex; justify-content: space-between;
+    color: #fff; font-weight: bold; z-index: 20;
+    text-shadow: 2px 2px 0 #000; pointer-events: none; font-size: 0.75rem;
+    gap: 5px; flex-wrap: wrap;
+  }
+  .hudItem { background: rgba(0,0,0,0.75); padding: 5px 10px; border-radius: 8px; border: 2px solid #666; }
+  .hudItem.danger { border-color: #ff2222; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 rgba(255,0,0,0)} 50%{box-shadow:0 0 20px rgba(255,0,0,0.9)} }
+  
+  /* ===== JOYSTICK (posisi nyaman) ===== */
+  .joystickZone {
+    position: fixed;
+    left: 20px;
+    bottom: 30px;
+    width: 170px;
+    height: 170px;
+    z-index: 20;
+    pointer-events: auto;
+    touch-action: none;
+  }
+  .joystickBase {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(60,30,10,0.4), rgba(20,10,5,0.6));
+    border: 3px solid rgba(200,150,100,0.5);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+  }
+  .joystickKnob {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,200,150,0.95), rgba(200,120,60,0.95));
+    border: 3px solid rgba(255,220,180,0.9);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 20px rgba(255,150,50,0.5), inset 0 -3px 8px rgba(0,0,0,0.3);
+    transition: box-shadow 0.15s;
+    pointer-events: none;
+  }
+  .joystickKnob.active { box-shadow: 0 4px 30px rgba(255,150,50,0.9), inset 0 -3px 8px rgba(0,0,0,0.3); }
+  .joystickBase::before { content: '▲'; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); color: rgba(255,200,150,0.4); font-size: 0.65rem; }
+  .joystickBase::after { content: '▼'; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); color: rgba(255,200,150,0.4); font-size: 0.65rem; }
+  
+  /* ===== JUMPSCARE ===== */
+  #jumpscare { position: fixed; inset: 0; background: #000; display: none; justify-content: center; align-items: center; z-index: 1000; overflow: hidden; }
+  #jumpscare.active { display: flex; }
+  #jumpscareImg { width: 100%; height: 100%; object-fit: cover; animation: jumpscareShake 0.1s infinite; }
+  @keyframes jumpscareShake {
+    0% { transform: translate(0,0) scale(1.05); }
+    25% { transform: translate(-10px,10px) scale(1.08); }
+    50% { transform: translate(10px,-10px) scale(1.05); }
+    75% { transform: translate(-5px,5px) scale(1.1); }
+    100% { transform: translate(5px,-5px) scale(1.05); }
+  }
+  
+  /* ===== MODAL ===== */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 500; padding: 20px; }
+  .modal.active { display: flex; }
+  .modalBox {
+    background: linear-gradient(135deg, #2a1a1a, #0a0a0a);
+    border: 2px solid #aa4444; border-radius: 16px;
+    padding: 28px 22px; text-align: center;
+    max-width: 380px; width: 100%;
+    box-shadow: 0 0 60px rgba(255,50,50,0.5);
+  }
+  .modalBox h2 { font-size: 1.8rem; color: #ff4444; margin-bottom: 10px; letter-spacing: 2px; }
+  .modalBox .emoji { font-size: 3.5rem; margin: 8px 0; }
+  .modalBox p { color: #ccc; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.5; }
+  .modalBox .btnGroup { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .modalBox .menuBtn { width: auto; min-width: 110px; padding: 11px 18px; font-size: 0.8rem; margin: 0; }
+  
+  .bloodOverlay {
+    position: fixed; inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(180,0,0,0.5) 70%, rgba(180,0,0,0.9) 100%);
+    pointer-events: none; z-index: 15; opacity: 0; transition: opacity 0.5s;
+  }
+  .bloodOverlay.show { opacity: 1; }
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 16;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.5) 100%);
+  }
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menuScreen" class="screen active">
+  <div class="menuTitle">HORROR TITUT</div>
+  <div class="menuSub">V1 • ATUTTITUTKENTUT • HANTU TITUT </div>
+  <button class="menuBtn" id="playBtn">▶ MULAI PERMAINAN</button>
+  <button class="menuBtn" id="howBtn">❓ CARA MAIN</button>
+  
+  <div class="filmBox" id="filmBox">
+    <div class="filmLabel">🎬 FILM BEST TITUT (PENCET GAMBAR)</div>
+    <img src="https://files.catbox.moe/ktk2h7.jpg" class="filmImg" alt="Film Best Titut" onerror="this.style.display='none'">
+    <div class="filmTapHint">👆 TAP BUAT LIHAT FULL</div>
+  </div>
+  
+  <div class="creditLine">⚡ CREATED BY: kibenkSanji ⚡</div>
+  <div class="creditSub">v1 • horror titut series</div>
+</div>
+
+<!-- FILM PAGE -->
+<div id="filmScreen" class="screen">
+  <div class="filmPageTitle">🎬 FILM BEST TITUT</div>
+  <div class="filmFullWrap">
+    <img src="https://files.catbox.moe/ktk2h7.jpg" class="filmFullImg" alt="Film Best Titut Full" onerror="this.alt='Gambar gagal load'">
+  </div>
+  <button class="backBtn" id="filmBack">← KEMBALI</button>
+</div>
+
+<!-- DIFFICULTY -->
+<div id="diffScreen" class="screen">
+  <div class="diffTitle">PILIH KESULITAN</div>
+  <div class="diffSub">Hantu tau lokasi lo! Kabur secepat mungkin</div>
+  <button class="diffBtn" id="diffEasy">
+    <span class="diffName">🟢 EASY</span>
+    <span class="diffInfo">20 LILIN • HANTU SEDANG • 15 BLOK</span>
+  </button>
+  <button class="diffBtn" id="diffNormal">
+    <span class="diffName">🟡 NORMAL</span>
+    <span class="diffInfo">35 LILIN • HANTU CEPAT • 22 BLOK</span>
+  </button>
+  <button class="diffBtn" id="diffHard">
+    <span class="diffName">🟠 HARD</span>
+    <span class="diffInfo">45 LILIN • HANTU CEPET • 30 BLOK</span>
+  </button>
+  <button class="diffBtn" id="diffImpossible">
+    <span class="diffName">🔴 IMPOSSIBLE</span>
+    <span class="diffInfo">60 LILIN • HANTU TEMBUS BLOK • 40 BLOK</span>
+  </button>
+  <button class="diffBtn" id="diffInsane">
+    <span class="diffName">💜 INSANE</span>
+    <span class="diffInfo">100 LILIN • HANTU TEMBUS + GILA • 55 BLOK</span>
+  </button>
+  <button class="backBtn" id="diffBack">← KEMBALI</button>
+</div>
+
+<!-- GAME -->
+<div id="gameScreen" class="screen">
+  <canvas id="gameCanvas"></canvas>
+  <div class="hud">
+    <div class="hudItem">🕯️ <span id="hudCandles">0</span>/<span id="hudTotal">5</span></div>
+    <div class="hudItem" id="hudGhostState">👻 <span id="hudGhostDist">--</span></div>
+    <div class="hudItem" id="hudDiff">EASY</div>
+    <div class="hudItem">⏱️ <span id="hudTime">0.0s</span></div>
+  </div>
+  <div class="vignette"></div>
+  <div class="bloodOverlay" id="bloodOverlay"></div>
+  
+  <div class="joystickZone" id="joystickZone">
+    <div class="joystickBase"></div>
+    <div class="joystickKnob" id="joystickKnob"></div>
+  </div>
+</div>
+
+<div id="jumpscare"><img id="jumpscareImg" alt="BOO!"></div>
+
+<!-- HOW MODAL -->
+<div class="modal" id="howModal">
+  <div class="modalBox">
+    <div class="emoji">👻</div>
+    <h2>CARA MAIN</h2>
+    <p style="text-align:left;color:#ccc;font-size:0.8rem">
+      🎯 <b>Tujuan:</b> Cari lilin sesuai difficulty<br><br>
+      🕯️ <b>Lilin:</b> Ambil dengan mendekat<br><br>
+      👻 <b>Hantu:</b> Tau posisi lo terus! Langsung spawn 2 detik<br><br>
+      🧱 <b>Blok:</b> Easy-Hard hantu gak bisa tembus blok, Impossible-Insane bisa tembus!<br><br>
+      🕹️ <b>Gerak:</b> Pake joystick analog di kiri bawah<br><br>
+      🔊 <b>Suara:</b> Makin keras = hantu makin deket<br><br>
+      🏃 <b>Hindari:</b> Kalau hantu nyentuh → JUMPSCARE!
+    </p>
+    <div class="btnGroup"><button class="menuBtn" id="howBackBtn">← KEMBALI</button></div>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div class="modal" id="winModal">
+  <div class="modalBox">
+    <div class="emoji" id="endEmoji">🏆</div>
+    <h2 id="endTitle">SELAMAT!</h2>
+    <p id="endMsg"></p>
+    <div class="btnGroup">
+      <button class="menuBtn" id="winMenuBtn">🏠 MENU</button>
+      <button class="menuBtn" id="winRetryBtn">🔄 MAIN LAGI</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const CONFIG = {
+  ghostImage: "https://files.catbox.moe/uc4ms0.jpg",
+  bgmMain: "https://files.catbox.moe/i92y55.mp4",
+  bgmTension: "https://files.catbox.moe/vv2a28.mp3",
+  bgmMainVolume: 0.45,
+  bgmTensionBaseVolume: 0.15,
+  bgmTensionMaxVolume: 1.0,
+  playerSpeed: 5.8,
+  ghostSpawnDelay: 2,
+  jumpscareDuration: 2000,
+  renderScale: 0.62,
+  worldWidth: 2600,
+  worldHeight: 1900,
+  spawnSafeRadius: 240,
+  candleMinDistance: 200,
+  ghostSize: 90
+};
+
+// ============================================================
+// DIFFICULTIES
+// ============================================================
+const DIFFICULTIES = {
+  easy:       { key: "easy", name: "EASY", color: "#44dd66", candles: 20, ghostBaseSpeed: 1.8, ghostSpeedIncrease: 0.05, ghostMaxSpeed: 2.6, blocks: 15, ghostThroughBlocks: false, ghostPredict: true },
+  normal:     { key: "normal", name: "NORMAL", color: "#ffcc33", candles: 35, ghostBaseSpeed: 2.3, ghostSpeedIncrease: 0.05, ghostMaxSpeed: 3.2, blocks: 22, ghostThroughBlocks: false, ghostPredict: true },
+  hard:       { key: "hard", name: "HARD", color: "#ff7733", candles: 45, ghostBaseSpeed: 2.8, ghostSpeedIncrease: 0.05, ghostMaxSpeed: 3.8, blocks: 30, ghostThroughBlocks: false, ghostPredict: true },
+  impossible: { key: "impossible", name: "IMPOSSIBLE", color: "#ff2266", candles: 60, ghostBaseSpeed: 3.3, ghostSpeedIncrease: 0.05, ghostMaxSpeed: 4.5, blocks: 40, ghostThroughBlocks: true, ghostPredict: true },
+  insane:     { key: "insane", name: "INSANE", color: "#b300ff", candles: 100, ghostBaseSpeed: 4.2, ghostSpeedIncrease: 0.04, ghostMaxSpeed: 5.5, blocks: 55, ghostThroughBlocks: true, ghostPredict: true }
+};
+
+let currentDiff = DIFFICULTIES.normal;
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+let W = 0, H = 0;
+let gameState = null;
+let animationId = null;
+let ghostImg = null, ghostImgLoaded = false;
+
+function resizeCanvas() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function preloadImages() {
+  if (CONFIG.ghostImage && !ghostImg) {
+    ghostImg = new Image();
+    ghostImg.crossOrigin = "anonymous";
+    ghostImg.onload = () => ghostImgLoaded = true;
+    ghostImg.src = CONFIG.ghostImage;
+  }
+}
+
+// ============================================================
+// AUDIO
+// ============================================================
+const AudioMgr = {
+  mainAudio: null, tensionAudio: null, currentMode: null, initialized: false,
+  init() {
+    if (this.initialized) return;
+    this.mainAudio = new Audio(CONFIG.bgmMain);
+    this.mainAudio.loop = true;
+    this.mainAudio.volume = CONFIG.bgmMainVolume;
+    this.tensionAudio = new Audio(CONFIG.bgmTension);
+    this.tensionAudio.loop = true;
+    this.tensionAudio.volume = CONFIG.bgmTensionBaseVolume;
+    this.initialized = true;
+  },
+  playMain() {
+    this.init();
+    if (this.currentMode === "main") return;
+    if (this.tensionAudio) { this.tensionAudio.pause(); this.tensionAudio.currentTime = 0; }
+    if (this.mainAudio) { this.mainAudio.currentTime = 0; this.mainAudio.volume = CONFIG.bgmMainVolume; this.mainAudio.play().catch(()=>{}); }
+    this.currentMode = "main";
+  },
+  playTension() {
+    this.init();
+    if (this.currentMode === "tension") return;
+    if (this.mainAudio) this.mainAudio.pause();
+    if (this.tensionAudio) { this.tensionAudio.currentTime = 0; this.tensionAudio.volume = CONFIG.bgmTensionBaseVolume; this.tensionAudio.play().catch(()=>{}); }
+    this.currentMode = "tension";
+  },
+  stop() {
+    if (this.mainAudio) { this.mainAudio.pause(); this.mainAudio.currentTime = 0; }
+    if (this.tensionAudio) { this.tensionAudio.pause(); this.tensionAudio.currentTime = 0; }
+    this.currentMode = null;
+  },
+  updateTensionVolume(distance) {
+    if (this.currentMode !== "tension" || !this.tensionAudio) return;
+    const maxDist = 700, minDist = 80;
+    let t = 1 - (distance - minDist) / (maxDist - minDist);
+    t = Math.max(0, Math.min(1, t));
+    const vol = CONFIG.bgmTensionBaseVolume + t * (CONFIG.bgmTensionMaxVolume - CONFIG.bgmTensionBaseVolume);
+    this.tensionAudio.volume = Math.max(0, Math.min(1, vol));
+  },
+  updateByDistance(distance) {
+    if (this.currentMode === null) return;
+    const tensionThreshold = 650;
+    if (distance < tensionThreshold && this.currentMode !== "tension") this.playTension();
+    else if (distance >= tensionThreshold && this.currentMode !== "main") this.playMain();
+    if (this.currentMode === "tension") this.updateTensionVolume(distance);
+  }
+};
+
+let audioCtxScare = null;
+function playScareSound(vol = 0.5) {
+  try {
+    if (!audioCtxScare) audioCtxScare = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtxScare.state === "suspended") audioCtxScare.resume();
+    const t = audioCtxScare.currentTime;
+    const bufferSize = audioCtxScare.sampleRate * 1.5;
+    const buffer = audioCtxScare.createBuffer(1, bufferSize, audioCtxScare.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random()*2-1) * Math.pow(1-i/bufferSize, 0.5);
+    const noise = audioCtxScare.createBufferSource(); noise.buffer = buffer;
+    const filter = audioCtxScare.createBiquadFilter();
+    filter.type = "lowpass"; filter.frequency.setValueAtTime(3000, t);
+    filter.frequency.exponentialRampToValueAtTime(500, t+1.5);
+    const gain = audioCtxScare.createGain();
+    gain.gain.setValueAtTime(vol, t); gain.gain.exponentialRampToValueAtTime(0.001, t+1.5);
+    noise.connect(filter); filter.connect(gain); gain.connect(audioCtxScare.destination);
+    noise.start(t); noise.stop(t+1.5);
+    const osc = audioCtxScare.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(1200, t);
+    osc.frequency.exponentialRampToValueAtTime(200, t+1);
+    const oscGain = audioCtxScare.createGain();
+    oscGain.gain.setValueAtTime(vol*0.5, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t+1);
+    osc.connect(oscGain); oscGain.connect(audioCtxScare.destination);
+    osc.start(t); osc.stop(t+1);
+  } catch(e) {}
+}
+
+// ============================================================
+// JOYSTICK
+// ============================================================
+const joystickZone = document.getElementById("joystickZone");
+const joystickKnob = document.getElementById("joystickKnob");
+let joystick = { active: false, touchId: null, centerX: 0, centerY: 0, dx: 0, dy: 0, maxRadius: 35 };
+
+function getJoystickCenter() {
+  const rect = joystickZone.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+function onJoystickStart(clientX, clientY, id) {
+  const c = getJoystickCenter();
+  joystick.active = true; joystick.touchId = id;
+  joystick.centerX = c.x; joystick.centerY = c.y;
+  joystickKnob.classList.add("active");
+  updateJoystick(clientX, clientY);
+}
+function onJoystickMove(clientX, clientY) { if (joystick.active) updateJoystick(clientX, clientY); }
+function updateJoystick(clientX, clientY) {
+  let dx = clientX - joystick.centerX, dy = clientY - joystick.centerY;
+  const dist = Math.hypot(dx, dy), maxR = joystick.maxRadius;
+  if (dist > maxR) { dx = (dx/dist)*maxR; dy = (dy/dist)*maxR; }
+  joystick.dx = dx / maxR; joystick.dy = dy / maxR;
+  joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+}
+function onJoystickEnd() {
+  joystick.active = false; joystick.touchId = null;
+  joystick.dx = 0; joystick.dy = 0;
+  joystickKnob.style.transform = "translate(-50%, -50%)";
+  joystickKnob.classList.remove("active");
+}
+joystickZone.addEventListener("touchstart", (e) => { e.preventDefault(); const t = e.changedTouches[0]; onJoystickStart(t.clientX, t.clientY, t.identifier); }, { passive: false });
+joystickZone.addEventListener("touchmove", (e) => { e.preventDefault(); for (const t of e.changedTouches) if (t.identifier === joystick.touchId) onJoystickMove(t.clientX, t.clientY); }, { passive: false });
+joystickZone.addEventListener("touchend", (e) => { e.preventDefault(); for (const t of e.changedTouches) if (t.identifier === joystick.touchId) onJoystickEnd(); }, { passive: false });
+joystickZone.addEventListener("touchcancel", (e) => onJoystickEnd(), { passive: false });
+joystickZone.addEventListener("mousedown", (e) => { e.preventDefault(); onJoystickStart(e.clientX, e.clientY, "mouse"); });
+document.addEventListener("mousemove", (e) => { if (joystick.active && joystick.touchId === "mouse") onJoystickMove(e.clientX, e.clientY); });
+document.addEventListener("mouseup", () => { if (joystick.touchId === "mouse") onJoystickEnd(); });
+
+let kbKeys = { up: false, down: false, left: false, right: false };
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp" || e.key === "w") kbKeys.up = true;
+  if (e.key === "ArrowDown" || e.key === "s") kbKeys.down = true;
+  if (e.key === "ArrowLeft" || e.key === "a") kbKeys.left = true;
+  if (e.key === "ArrowRight" || e.key === "d") kbKeys.right = true;
+});
+document.addEventListener("keyup", (e) => {
+  if (e.key === "ArrowUp" || e.key === "w") kbKeys.up = false;
+  if (e.key === "ArrowDown" || e.key === "s") kbKeys.down = false;
+  if (e.key === "ArrowLeft" || e.key === "a") kbKeys.left = false;
+  if (e.key === "ArrowRight" || e.key === "d") kbKeys.right = false;
+});
+
+function getInputVector() {
+  let dx = joystick.dx, dy = joystick.dy;
+  if (kbKeys.left) dx = -1;
+  if (kbKeys.right) dx = 1;
+  if (kbKeys.up) dy = -1;
+  if (kbKeys.down) dy = 1;
+  return { dx, dy };
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function rectOverlap(a, b, gap = 0) {
+  return a.x < b.x + b.w + gap && a.x + a.w + gap > b.x &&
+         a.y < b.y + b.h + gap && a.y + a.h + gap > b.y;
+}
+function rectToSpawnDistance(rect, sx, sy) {
+  const cx = Math.max(rect.x, Math.min(sx, rect.x + rect.w));
+  const cy = Math.max(rect.y, Math.min(sy, rect.y + rect.h));
+  return Math.hypot(cx - sx, cy - sy);
+}
+
+// ============================================================
+// START
+// ============================================================
+function startGame(diff) {
+  currentDiff = diff || DIFFICULTIES.normal;
+  
+  const WORLD_W = CONFIG.worldWidth;
+  const WORLD_H = CONFIG.worldHeight;
+  const pSize = 36;
+  const spawnX = WORLD_W / 2;
+  const spawnY = WORLD_H / 2;
+  
+  const walls = [];
+  const targetBlocks = currentDiff.blocks;
+  let blockAttempts = 0;
+  const maxBlockAttempts = targetBlocks * 100;
+  const minGapBetweenBlocks = 45;
+  
+  while (walls.length < targetBlocks && blockAttempts < maxBlockAttempts) {
+    blockAttempts++;
+    const ww = 70 + Math.random() * 100;
+    const wh = 25 + Math.random() * 22;
+    const wx = 90 + Math.random() * (WORLD_W - ww - 180);
+    const wy = 130 + Math.random() * (WORLD_H - wh - 260);
+    const newWall = { x: wx, y: wy, w: ww, h: wh };
+    const distToSpawn = rectToSpawnDistance(newWall, spawnX, spawnY);
+    if (distToSpawn < CONFIG.spawnSafeRadius + pSize / 2) continue;
+    let overlap = false;
+    for (const w of walls) if (rectOverlap(newWall, w, minGapBetweenBlocks)) { overlap = true; break; }
+    if (overlap) continue;
+    walls.push(newWall);
+  }
+  if (walls.length < targetBlocks) {
+    blockAttempts = 0;
+    const softGap = 15;
+    while (walls.length < targetBlocks && blockAttempts < maxBlockAttempts) {
+      blockAttempts++;
+      const ww = 60 + Math.random() * 80;
+      const wh = 22 + Math.random() * 18;
+      const wx = 90 + Math.random() * (WORLD_W - ww - 180);
+      const wy = 130 + Math.random() * (WORLD_H - wh - 260);
+      const newWall = { x: wx, y: wy, w: ww, h: wh };
+      const distToSpawn = rectToSpawnDistance(newWall, spawnX, spawnY);
+      if (distToSpawn < CONFIG.spawnSafeRadius + pSize / 2) continue;
+      let overlap = false;
+      for (const w of walls) if (rectOverlap(newWall, w, softGap)) { overlap = true; break; }
+      if (overlap) continue;
+      walls.push(newWall);
+    }
+  }
+  
+  const candles = [];
+  const totalCandles = currentDiff.candles;
+  const minDist = CONFIG.candleMinDistance;
+  let candleAttempts = 0;
+  const maxCandleAttempts = totalCandles * 250;
+  
+  while (candles.length < totalCandles && candleAttempts < maxCandleAttempts) {
+    candleAttempts++;
+    const cx = 100 + Math.random() * (WORLD_W - 200);
+    const cy = 140 + Math.random() * (WORLD_H - 240);
+    if (Math.hypot(cx - spawnX, cy - spawnY) < CONFIG.spawnSafeRadius) continue;
+    let inWall = false;
+    for (const w of walls) if (cx > w.x - 30 && cx < w.x + w.w + 30 && cy > w.y - 30 && cy < w.y + w.h + 30) { inWall = true; break; }
+    if (inWall) continue;
+    let tooClose = false;
+    for (const c of candles) if (Math.hypot(cx - c.x, cy - c.y) < minDist) { tooClose = true; break; }
+    if (tooClose) continue;
+    candles.push({ x: cx, y: cy, size: 18, collected: false, flicker: Math.random() * Math.PI * 2 });
+  }
+  while (candles.length < totalCandles) {
+    candles.push({ x: 100 + Math.random() * (WORLD_W - 200), y: 140 + Math.random() * (WORLD_H - 240), size: 18, collected: false, flicker: Math.random() * Math.PI * 2 });
+  }
+  
+  gameState = {
+    diff: currentDiff,
+    world: { w: WORLD_W, h: WORLD_H },
+    player: { x: spawnX, y: spawnY, size: pSize, speed: CONFIG.playerSpeed },
+    ghost: {
+      x: -200, y: -200, size: CONFIG.ghostSize, speed: currentDiff.ghostBaseSpeed,
+      active: false, spawnTimer: CONFIG.ghostSpawnDelay * 60, scaredTimer: 0,
+      throughBlocks: currentDiff.ghostThroughBlocks
+    },
+    candles, candlesCollected: 0, totalCandles,
+    walls,
+    camera: { x: 0, y: 0 },
+    time: 0, won: false, lost: false
+  };
+  
+  updateCamera();
+  
+  document.getElementById("hudTotal").textContent = totalCandles;
+  document.getElementById("hudDiff").textContent = currentDiff.name;
+  document.getElementById("hudDiff").style.borderColor = currentDiff.color;
+  document.getElementById("hudDiff").style.color = currentDiff.color;
+  
+  AudioMgr.stop();
+  AudioMgr.init();
+  AudioMgr.playMain();
+  
+  if (animationId) cancelAnimationFrame(animationId);
+  document.getElementById("bloodOverlay").classList.remove("show");
+  updateHud();
+  loop();
+}
+
+function updateCamera() {
+  if (!gameState) return;
+  const scale = CONFIG.renderScale;
+  const viewW = W / scale;
+  const viewH = H / scale;
+  const p = gameState.player;
+  const cam = gameState.camera;
+  const world = gameState.world;
+  cam.x = p.x - viewW / 2;
+  cam.y = p.y - viewH / 2;
+  cam.x = Math.max(0, Math.min(cam.x, world.w - viewW));
+  cam.y = Math.max(0, Math.min(cam.y, world.h - viewH));
+  if (world.w < viewW) cam.x = (world.w - viewW) / 2;
+  if (world.h < viewH) cam.y = (world.h - viewH) / 2;
+}
+
+// ============================================================
+// UPDATE
+// ============================================================
+function update() {
+  if (!gameState || gameState.won || gameState.lost) return;
+  const g = gameState;
+  g.time += 1/60;
+  
+  const p = g.player;
+  const input = getInputVector();
+  let dx = input.dx, dy = input.dy;
+  
+  const nx = p.x + dx * p.speed;
+  const ny = p.y + dy * p.speed;
+  
+  let canX = true, canY = true;
+  for (const w of g.walls) {
+    if (nx - p.size/2 < w.x + w.w && nx + p.size/2 > w.x && p.y - p.size/2 < w.y + w.h && p.y + p.size/2 > w.y) canX = false;
+    if (p.x - p.size/2 < w.x + w.w && p.x + p.size/2 > w.x && ny - p.size/2 < w.y + w.h && ny + p.size/2 > w.y) canY = false;
+  }
+  if (canX) p.x = Math.max(p.size/2, Math.min(g.world.w - p.size/2, nx));
+  if (canY) p.y = Math.max(p.size/2, Math.min(g.world.h - p.size/2, ny));
+  
+  for (const c of g.candles) {
+    if (c.collected) continue;
+    c.flicker += 0.15;
+    if (Math.hypot(p.x - c.x, p.y - c.y) < p.size/2 + c.size) {
+      c.collected = true;
+      g.candlesCollected++;
+      g.ghost.speed = Math.min(g.diff.ghostMaxSpeed, g.ghost.speed + g.diff.ghostSpeedIncrease);
+      updateHud();
+    }
+  }
+  
+  const gh = g.ghost;
+  if (!gh.active) {
+    gh.spawnTimer--;
+    if (gh.spawnTimer <= 0) {
+      gh.active = true;
+      const corners = [
+        {x: 60, y: 60}, {x: g.world.w - 60, y: 60},
+        {x: 60, y: g.world.h - 60}, {x: g.world.w - 60, y: g.world.h - 60}
+      ];
+      let best = corners[0], maxD = 0;
+      for (const c of corners) {
+        const d = Math.hypot(c.x - p.x, c.y - p.y);
+        if (d > maxD) { maxD = d; best = c; }
+      }
+      gh.x = best.x; gh.y = best.y;
+      playScareSound(0.3);
+    }
+  } else {
+    let targetX = p.x, targetY = p.y;
+    if (g.diff.ghostPredict) {
+      const predictTime = 15;
+      targetX = p.x + dx * p.speed * predictTime;
+      targetY = p.y + dy * p.speed * predictTime;
+    }
+    
+    const a = Math.atan2(targetY - gh.y, targetX - gh.x);
+    let nextGX = gh.x + Math.cos(a) * gh.speed;
+    let nextGY = gh.y + Math.sin(a) * gh.speed;
+    
+    if (!gh.throughBlocks) {
+      let canGX = true, canGY = true;
+      const gr = gh.size * 0.4;
+      for (const w of g.walls) {
+        if (nextGX - gr < w.x + w.w && nextGX + gr > w.x && gh.y - gr < w.y + w.h && gh.y + gr > w.y) canGX = false;
+        if (gh.x - gr < w.x + w.w && gh.x + gr > w.x && nextGY - gr < w.y + w.h && nextGY + gr > w.y) canGY = false;
+      }
+      if (canGX) gh.x = nextGX;
+      if (canGY) gh.y = nextGY;
+      if (!canGX && !canGY) {
+        const tangentAngle = a + Math.PI / 2;
+        const altX = gh.x + Math.cos(tangentAngle) * gh.speed;
+        const altY = gh.y + Math.sin(tangentAngle) * gh.speed;
+        let altOk = true;
+        for (const w of g.walls) {
+          if (altX - gr < w.x + w.w && altX + gr > w.x && altY - gr < w.y + w.h && altY + gr > w.y) { altOk = false; break; }
+        }
+        if (altOk) { gh.x = altX; gh.y = altY; }
+      }
+    } else {
+      gh.x = nextGX;
+      gh.y = nextGY;
+    }
+    
+    if (Math.hypot(p.x - gh.x, p.y - gh.y) < p.size/2 + gh.size/2) { triggerJumpscare(); return; }
+  }
+  
+  if (gh.active) {
+    const dist = Math.hypot(p.x - gh.x, p.y - gh.y);
+    AudioMgr.updateByDistance(dist);
+  }
+  
+  updateCamera();
+  
+  if (g.candlesCollected >= g.totalCandles && !g.won) {
+    g.won = true;
+    AudioMgr.stop();
+    setTimeout(() => showEnd(true), 500);
+  }
+  
+  updateHud();
+}
+
+// ============================================================
+// DRAW
+// ============================================================
+function draw() {
+  if (!gameState) return;
+  const g = gameState;
+  const scale = CONFIG.renderScale;
+  const p = g.player;
+  
+  ctx.fillStyle = "#0a0a14";
+  ctx.fillRect(0, 0, W, H);
+  
+  ctx.save();
+  ctx.scale(scale, scale);
+  ctx.translate(-g.camera.x, -g.camera.y);
+  
+  const viewW = W / scale;
+  const viewH = H / scale;
+  const camLeft = g.camera.x, camTop = g.camera.y;
+  const camRight = camLeft + viewW, camBottom = camTop + viewH;
+  
+  const floorGrd = ctx.createRadialGradient(
+    camLeft + viewW/2, camTop + viewH/2, 0,
+    camLeft + viewW/2, camTop + viewH/2, Math.max(viewW, viewH)
+  );
+  floorGrd.addColorStop(0, "#3a3a4e");
+  floorGrd.addColorStop(0.6, "#2a2a3a");
+  floorGrd.addColorStop(1, "#1a1a2a");
+  ctx.fillStyle = floorGrd;
+  ctx.fillRect(camLeft, camTop, viewW, viewH);
+  
+  ctx.strokeStyle = "rgba(160,160,200,0.12)";
+  ctx.lineWidth = 1;
+  const gridSize = 60;
+  const startX = Math.floor(camLeft / gridSize) * gridSize;
+  const startY = Math.floor(camTop / gridSize) * gridSize;
+  for (let x = startX; x < camRight + gridSize; x += gridSize) {
+    ctx.beginPath(); ctx.moveTo(x, camTop); ctx.lineTo(x, camBottom); ctx.stroke();
+  }
+  for (let y = startY; y < camBottom + gridSize; y += gridSize) {
+    ctx.beginPath(); ctx.moveTo(camLeft, y); ctx.lineTo(camRight, y); ctx.stroke();
+  }
+  
+  ctx.strokeStyle = "rgba(255,100,100,0.4)";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(0, 0, g.world.w, g.world.h);
+  
+  for (const w of g.walls) {
+    if (w.x + w.w < camLeft || w.x > camRight || w.y + w.h < camTop || w.y > camBottom) continue;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(w.x + 5, w.y + 5, w.w, w.h);
+    const wallGrd = ctx.createLinearGradient(w.x, w.y, w.x, w.y + w.h);
+    wallGrd.addColorStop(0, "#6a4838");
+    wallGrd.addColorStop(1, "#4a3528");
+    ctx.fillStyle = wallGrd;
+    ctx.fillRect(w.x, w.y, w.w, w.h);
+    ctx.strokeStyle = "#8a6850";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(w.x, w.y, w.w, w.h);
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.fillRect(w.x, w.y, w.w, 3);
+  }
+  
+  const ambientR = 220;
+  const ambient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, ambientR);
+  ambient.addColorStop(0, "rgba(255,220,150,0.35)");
+  ambient.addColorStop(0.5, "rgba(255,220,150,0.12)");
+  ambient.addColorStop(1, "rgba(255,220,150,0)");
+  ctx.fillStyle = ambient;
+  ctx.beginPath(); ctx.arc(p.x, p.y, ambientR, 0, Math.PI*2); ctx.fill();
+  
+  for (const c of g.candles) {
+    if (c.collected) continue;
+    if (c.x < camLeft - 100 || c.x > camRight + 100 || c.y < camTop - 100 || c.y > camBottom + 100) continue;
+    const fl = 30 + Math.sin(c.flicker) * 5;
+    const grd = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, fl + 60);
+    grd.addColorStop(0, "rgba(255,220,80,0.9)");
+    grd.addColorStop(0.5, "rgba(255,140,40,0.35)");
+    grd.addColorStop(1, "rgba(255,100,0,0)");
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(c.x, c.y, fl + 60, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#ffe8b0";
+    ctx.fillRect(c.x - 5, c.y - 2, 10, 22);
+    ctx.fillStyle = "#ffd93d";
+    ctx.fillRect(c.x - 4, c.y - 1, 8, 20);
+    const fs = 10 + Math.sin(c.flicker * 2) * 2;
+    const fg = ctx.createRadialGradient(c.x, c.y - 10, 0, c.x, c.y - 10, fs);
+    fg.addColorStop(0, "#fffbe0");
+    fg.addColorStop(0.4, "#ffcc00");
+    fg.addColorStop(1, "rgba(255,150,0,0)");
+    ctx.fillStyle = fg;
+    ctx.beginPath(); ctx.arc(c.x, c.y - 10, fs, 0, Math.PI * 2); ctx.fill();
+  }
+  
+  ctx.font = `${p.size}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🧑", p.x, p.y);
+  ctx.strokeStyle = "rgba(0,255,100,0.6)";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 0.85, 0, Math.PI * 2); ctx.stroke();
+  
+  const gh = g.ghost;
+  if (gh.active) {
+    const gg = ctx.createRadialGradient(gh.x, gh.y, 0, gh.x, gh.y, gh.size * 2);
+    const pulse = 0.5 + Math.sin(g.time * 5) * 0.2;
+    gg.addColorStop(0, `rgba(255,50,50,${pulse})`);
+    gg.addColorStop(1, "rgba(255,50,50,0)");
+    ctx.fillStyle = gg;
+    ctx.beginPath(); ctx.arc(gh.x, gh.y, gh.size * 2, 0, Math.PI * 2); ctx.fill();
+    if (ghostImgLoaded && ghostImg) {
+      const shake = (Math.random()-0.5)*6;
+      ctx.drawImage(ghostImg, gh.x - gh.size/2 + shake, gh.y - gh.size/2, gh.size, gh.size);
+    } else {
+      ctx.font = `${gh.size}px sans-serif`;
+      const shake = (Math.random()-0.5)*10;
+      ctx.fillText("👻", gh.x + shake, gh.y);
+    }
+  }
+  
+  ctx.restore();
+  
+  // Minimap
+  if (g.world.w > 0) {
+    const mmW = 120;
+    const mmH = mmW * (g.world.h / g.world.w);
+    const mmX = W - mmW - 12;
+    const mmY = 62;
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.fillRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+    ctx.strokeStyle = "rgba(255,80,80,0.8)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+    ctx.fillStyle = "rgba(140,100,80,0.7)";
+    for (const w of g.walls) {
+      ctx.fillRect(mmX + (w.x / g.world.w) * mmW, mmY + (w.y / g.world.h) * mmH, (w.w / g.world.w) * mmW, (w.h / g.world.h) * mmH);
+    }
+    ctx.fillStyle = "#ffd93d";
+    for (const c of g.candles) {
+      if (c.collected) continue;
+      ctx.beginPath();
+      ctx.arc(mmX + (c.x / g.world.w) * mmW, mmY + (c.y / g.world.h) * mmH, 1.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#00ff88";
+    ctx.beginPath();
+    ctx.arc(mmX + (p.x / g.world.w) * mmW, mmY + (p.y / g.world.h) * mmH, 3, 0, Math.PI*2);
+    ctx.fill();
+    if (gh.active) {
+      ctx.fillStyle = "#ff2222";
+      ctx.beginPath();
+      ctx.arc(mmX + (gh.x / g.world.w) * mmW, mmY + (gh.y / g.world.h) * mmH, 4, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+}
+
+function loop() {
+  update();
+  draw();
+  if (gameState && !gameState.won && !gameState.lost) animationId = requestAnimationFrame(loop);
+}
+
+function updateHud() {
+  if (!gameState) return;
+  document.getElementById("hudCandles").textContent = gameState.candlesCollected;
+  document.getElementById("hudTime").textContent = gameState.time.toFixed(1) + "s";
+  const gh = gameState.ghost;
+  if (gh.active) {
+    const d = Math.hypot(gh.x - gameState.player.x, gh.y - gameState.player.y);
+    document.getElementById("hudGhostDist").textContent = Math.floor(d);
+    document.getElementById("hudGhostState").classList.add("danger");
+  } else {
+    const sisa = Math.ceil(gh.spawnTimer / 60);
+    document.getElementById("hudGhostDist").textContent = `${sisa}s`;
+  }
+}
+
+// ============================================================
+// JUMPSCARE
+// ============================================================
+function triggerJumpscare() {
+  if (!gameState || gameState.lost) return;
+  gameState.lost = true;
+  AudioMgr.stop();
+  playScareSound(0.8);
+  const js = document.getElementById("jumpscare");
+  const img = document.getElementById("jumpscareImg");
+  if (CONFIG.ghostImage && ghostImgLoaded) {
+    img.src = CONFIG.ghostImage;
+    img.style.display = "block";
+  } else {
+    img.style.display = "none";
+    js.innerHTML = '<div style="font-size:40vh;animation:jumpscareShake 0.1s infinite">👻</div>';
+  }
+  js.classList.add("active");
+  document.getElementById("bloodOverlay").classList.add("show");
+  setTimeout(() => {
+    js.classList.remove("active");
+    setTimeout(() => {
+      document.getElementById("bloodOverlay").classList.remove("show");
+      showEnd(false);
+    }, 500);
+  }, CONFIG.jumpscareDuration);
+}
+
+function showEnd(win) {
+  const modal = document.getElementById("winModal");
+  const diffName = gameState.diff.name;
+  const diffColor = gameState.diff.color;
+  if (win) {
+    document.getElementById("endEmoji").textContent = "🏆";
+    document.getElementById("endTitle").textContent = "SELAMAT!";
+    document.getElementById("endTitle").style.color = diffColor;
+    document.getElementById("endMsg").innerHTML = `Lo berhasil kabur!<br><b style="color:${diffColor}">${diffName}</b><br>⏱️ Waktu: <b>${gameState.time.toFixed(1)}s</b><br>Lilin: <b>${gameState.candlesCollected}/${gameState.totalCandles}</b>`;
+  } else {
+    document.getElementById("endEmoji").textContent = "💀";
+    document.getElementById("endTitle").textContent = "MATI!";
+    document.getElementById("endTitle").style.color = "#ff4444";
+    document.getElementById("endMsg").innerHTML = `Hantu nangkep lo!<br><b style="color:${diffColor}">${diffName}</b><br>Lilin: <b>${gameState.candlesCollected}/${gameState.totalCandles}</b><br>⏱️ Bertahan: <b>${gameState.time.toFixed(1)}s</b>`;
+  }
+  modal.classList.add("active");
+}
+
+// ============================================================
+// SCREENS
+// ============================================================
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+document.getElementById("playBtn").onclick = () => switchScreen("diffScreen");
+document.getElementById("howBtn").onclick = () => document.getElementById("howModal").classList.add("active");
+document.getElementById("howBackBtn").onclick = () => document.getElementById("howModal").classList.remove("active");
+
+document.getElementById("filmBox").onclick = () => switchScreen("filmScreen");
+document.getElementById("filmBack").onclick = () => switchScreen("menuScreen");
+
+document.getElementById("diffBack").onclick = () => switchScreen("menuScreen");
+document.getElementById("diffEasy").onclick = () => launch(DIFFICULTIES.easy);
+document.getElementById("diffNormal").onclick = () => launch(DIFFICULTIES.normal);
+document.getElementById("diffHard").onclick = () => launch(DIFFICULTIES.hard);
+document.getElementById("diffImpossible").onclick = () => launch(DIFFICULTIES.impossible);
+document.getElementById("diffInsane").onclick = () => launch(DIFFICULTIES.insane);
+
+function launch(diff) {
+  try { if (!audioCtxScare) audioCtxScare = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtxScare.state === "suspended") audioCtxScare.resume(); } catch(e) {}
+  switchScreen("gameScreen");
+  resizeCanvas();
+  preloadImages();
+  onJoystickEnd();
+  startGame(diff);
+}
+
+document.getElementById("winMenuBtn").onclick = () => {
+  document.getElementById("winModal").classList.remove("active");
+  AudioMgr.stop();
+  if (animationId) cancelAnimationFrame(animationId);
+  gameState = null;
+  onJoystickEnd();
+  switchScreen("menuScreen");
+};
+document.getElementById("winRetryBtn").onclick = () => {
+  document.getElementById("winModal").classList.remove("active");
+  AudioMgr.stop();
+  if (animationId) cancelAnimationFrame(animationId);
+  onJoystickEnd();
+  startGame(currentDiff);
+};
+</script>
+</body>
+</html>
